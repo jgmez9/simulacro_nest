@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, ParseUUIDPipe } from '@nestjs/common';
 import { CotizacionService } from './cotizacion.service.js';
 import { CreateCotizacionDto } from './dto/create-cotizacion.dto.js';
 import { UpdateCotizacionDto } from './dto/update-cotizacion.dto.js';
@@ -18,17 +18,17 @@ export class CotizacionController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.cotizacionService.findOne(+id);
+  findOne(@Param('id',ParseUUIDPipe) id: string) {
+    return this.cotizacionService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCotizacionDto: UpdateCotizacionDto) {
-    return this.cotizacionService.update(+id, updateCotizacionDto);
+  update(@Param('id',ParseUUIDPipe) id: string, @Body() updateCotizacionDto: UpdateCotizacionDto) {
+    return this.cotizacionService.update(id, updateCotizacionDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.cotizacionService.remove(+id);
+  remove(@Param('id',ParseUUIDPipe) id: string) {
+    return this.cotizacionService.remove(id);
   }
 }

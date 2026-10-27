@@ -35,7 +35,7 @@ fechaDeEntrada:string
 @Column({type:'int'})
 pasajeros:number
 
-@Column({type:'decimal'})
+@Column({type:'decimal', precision: 12, scale: 2})
 valorTotal:string
 
 @Column({type:'varchar', length: 100})

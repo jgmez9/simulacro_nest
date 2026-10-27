@@ -1,26 +1,68 @@
-import { Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+
 import { CreateCotizacionDto } from './dto/create-cotizacion.dto.js';
 import { UpdateCotizacionDto } from './dto/update-cotizacion.dto.js';
+import {
+  Cotizacion,
+  EstadoCotizacion,
+} from './entities/cotizacion.entity.js';
 
 @Injectable()
 export class CotizacionService {
-  create(createCotizacionDto: CreateCotizacionDto) {
-    return 'This action adds a new cotizacion';
+  constructor(
+    @InjectRepository(Cotizacion)
+    private readonly cotizacionRepository: Repository<Cotizacion>,
+  ) {}
+
+  async create(
+    createCotizacionDto: CreateCotizacionDto,
+  ): Promise<Cotizacion> {
+    const cotizacion = this.cotizacionRepository.create({
+      ...createCotizacionDto,
+      estado: EstadoCotizacion.BORRADOR,
+      motivoRechazo: null,
+    });
+
+    return this.cotizacionRepository.save(cotizacion);
   }
 
-  findAll() {
-    return `This action returns all cotizacion`;
+  async findAll(): Promise<Cotizacion[]> {
+    return this.cotizacionRepository.find();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} cotizacion`;
+  async findOne(id: string): Promise<Cotizacion> {
+    const cotizacion = await this.cotizacionRepository.findOne({
+      where: { id },
+    });
+
+    if (!cotizacion) {
+      throw new NotFoundException(
+        `No se encontró la cotización con ID ${id}`,
+      );
+    }
+
+    return cotizacion;
   }
 
-  update(id: number, updateCotizacionDto: UpdateCotizacionDto) {
-    return `This action updates a #${id} cotizacion`;
+  async update(
+    id: string,
+    updateCotizacionDto: UpdateCotizacionDto,
+  ): Promise<Cotizacion> {
+    const cotizacion = await this.findOne(id);
+
+    Object.assign(cotizacion, updateCotizacionDto);
+
+    return this.cotizacionRepository.save(cotizacion);
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} cotizacion`;
+  async remove(id: string): Promise<void> {
+    const cotizacion = await this.findOne(id);
+
+    await this.cotizacionRepository.remove(cotizacion);
   }
 }
